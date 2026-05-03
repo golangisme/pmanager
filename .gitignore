@@ -1,5 +1,0 @@
-build/
-vault.dat
-*.o
-.claude
-.gitignore
