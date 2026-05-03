@@ -42,7 +42,7 @@ static void read_secret(const char *prompt, char *buf, int max) {
 
 static void usage(const char *prog) {
     printf("Usage: %s <command> [args]\n\n", prog);
-    printf("  add    <service> <username>   Add a new entry\n");
+    printf("  add    <service> <username> [--random-pass] [--symbols] [length]   Add a new entry\n");
     printf("  get    <service>              Show credentials for a service\n");
     printf("  list                          List all services\n");
     printf("  delete <service>              Remove an entry\n");
@@ -97,18 +97,37 @@ int main(int argc, char **argv) {
         printf("Password: %s\n", e->password);
 
     } else if (strcmp(cmd, "add") == 0) {
-        if (argc < 4) { fprintf(stderr, "Usage: add <service> <username>\n"); status = 1; goto done; }
+        if (argc < 4) { fprintf(stderr, "Usage: add <service> <username> [--random-pass] [--symbols] [length]\n"); status = 1; goto done; }
+
+        int random_pass = 0, symbols = 0, length = 20;
+        for (int i = 4; i < argc; i++) {
+            if (strcmp(argv[i], "--random-pass") == 0) random_pass = 1;
+            else if (strcmp(argv[i], "--symbols") == 0) symbols = 1;
+            else {
+                int n = atoi(argv[i]);
+                if (n >= 4 && n <= 128) length = n;
+            }
+        }
 
         char pass[MASTER_MAX] = {0};
-        read_secret("Password (blank to generate): ", pass, sizeof(pass));
 
-        if (strlen(pass) == 0) {
-            char *gen = gen_password(20, 1);
+        if (random_pass) {
+            char *gen = gen_password(length, symbols);
             if (!gen) { fprintf(stderr, "Password generation failed.\n"); status = 1; goto done; }
             printf("Generated: %s\n", gen);
             strncpy(pass, gen, sizeof(pass) - 1);
             secure_zero(gen, strlen(gen));
             free(gen);
+        } else {
+            read_secret("Password (blank to generate): ", pass, sizeof(pass));
+            if (strlen(pass) == 0) {
+                char *gen = gen_password(20, 1);
+                if (!gen) { fprintf(stderr, "Password generation failed.\n"); status = 1; goto done; }
+                printf("Generated: %s\n", gen);
+                strncpy(pass, gen, sizeof(pass) - 1);
+                secure_zero(gen, strlen(gen));
+                free(gen);
+            }
         }
 
         if (vault_add(v, argv[2], argv[3], pass) < 0) {
