@@ -3,6 +3,7 @@
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
+#include <argon2.h>
 
 #include <assert.h>
 #include <limits.h>
@@ -58,6 +59,17 @@ int derive_key(const char *password, size_t pass_len,
             KEY_LEN,  key
         );
         return ok == 1 ? CRYPTO_OK : CRYPTO_ERR;
+    }
+    case KDF_ARGON2ID: {
+        int rc = argon2id_hash_raw(
+            kdf->iterations,
+            kdf->memory_kb,
+            kdf->parallelism,
+            password, pass_len,
+            salt,     SALT_LEN,
+            key,      KEY_LEN
+        );
+        return rc == ARGON2_OK ? CRYPTO_OK : CRYPTO_ERR;
     }
     default:
         return CRYPTO_ERR;

@@ -12,7 +12,7 @@ Roughly in order of priority.
 
 ## Crypto
 
-- [ ] Argon2id support — `KdfParams` already supports it, just needs `libargon2` linked and a `case KDF_ARGON2ID` in `derive_key()`
+- [x] Argon2id support — `KdfParams` already supports it, just needs `libargon2` linked and a `case KDF_ARGON2ID` in `derive_key()`
 - [ ] Auto-tune iteration count on first run — benchmark the machine and pick a value that takes ~1 second
 - [ ] Wipe vault plaintext from memory on SIGINT so Ctrl-C doesn't leave sensitive data behind
 

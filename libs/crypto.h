@@ -20,7 +20,7 @@ typedef enum {
 } CryptoError;
 
 #define KDF_PBKDF2_SHA256  0
-/* #define KDF_ARGON2ID    1 */
+#define KDF_ARGON2ID       1
 
 typedef struct {
     uint8_t  id;
@@ -29,7 +29,11 @@ typedef struct {
     uint8_t  parallelism;
 } KdfParams;
 
-#define KDF_DEFAULT ((KdfParams){ KDF_PBKDF2_SHA256, 600000, 0, 0 })
+/* OWASP recommended Argon2id params: 64MB memory, 3 passes, 4 threads */
+#define KDF_DEFAULT ((KdfParams){ KDF_ARGON2ID, 3, 65536, 4 })
+
+/* Kept for reading vaults created before the Argon2id migration */
+#define KDF_PBKDF2_DEFAULT ((KdfParams){ KDF_PBKDF2_SHA256, 600000, 0, 0 })
 
 /*
  * Vault file layout:

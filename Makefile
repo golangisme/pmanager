@@ -1,6 +1,6 @@
 CC      = gcc
 CFLAGS  = -Wall -Wextra -O2 -std=c11 -Ilibs -Isrc
-LDFLAGS = -lssl -lcrypto
+LDFLAGS = -lssl -lcrypto -largon2
 
 BUILD   = build
 TARGET  = $(BUILD)/pmanager
